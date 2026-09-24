@@ -26,6 +26,7 @@ import {
   X,
   Check,
   Music2,
+  Menu,
 } from "lucide-react";
 import "./styles.css";
 let audioUrl = "";
@@ -181,6 +182,7 @@ function App() {
     [menu, setMenu] = useState(null),
     [youtubeVideo, setYoutubeVideo] = useState(null),
     [themeModal, setThemeModal] = useState(false),
+    [mobileMenuOpen, setMobileMenuOpen] = useState(false),
     [theme, setTheme] = useState(
       () => localStorage.getItem("sonora-theme") || "classic",
     ),
@@ -618,10 +620,26 @@ function App() {
             : change(1)
         }
       />
-      <aside className="sidebar">
-        <div className="brand">
-          <span className="brand-mark">S</span>
-          <span>sonora</span>
+      {mobileMenuOpen && (
+        <div
+          className="sidebar-backdrop"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+      <aside className={`sidebar ${mobileMenuOpen ? "mobile-open" : ""}`}>
+        <div className="sidebar-header-row">
+          <div className="brand">
+            <span className="brand-mark">S</span>
+            <span>sonora</span>
+          </div>
+          <button
+            className="sidebar-close-btn"
+            type="button"
+            aria-label="Close menu"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <X size={20} />
+          </button>
         </div>
         <nav>
           {[
@@ -633,7 +651,10 @@ function App() {
             <button
               className={page === k ? "nav-item active" : "nav-item"}
               key={k}
-              onClick={() => setPage(k)}
+              onClick={() => {
+                setPage(k);
+                setMobileMenuOpen(false);
+              }}
             >
               <I size={19} />
               {n}
@@ -643,19 +664,31 @@ function App() {
         <div className="sidebar-label">{t.music}</div>
         <button
           className={page === "Favorites" ? "nav-item active" : "nav-item"}
-          onClick={() => setPage("Favorites")}
+          onClick={() => {
+            setPage("Favorites");
+            setMobileMenuOpen(false);
+          }}
         >
           <Heart size={19} />
           {t.favorites}
         </button>
         <button
           className={page === "Playlists" ? "nav-item active" : "nav-item"}
-          onClick={() => setPage("Playlists")}
+          onClick={() => {
+            setPage("Playlists");
+            setMobileMenuOpen(false);
+          }}
         >
           <ListMusic size={19} />
           {t.playlists}
         </button>
-        <button className="create-playlist" onClick={() => setModal(true)}>
+        <button
+          className="create-playlist"
+          onClick={() => {
+            setModal(true);
+            setMobileMenuOpen(false);
+          }}
+        >
           <Plus size={18} />
           {t.create}
         </button>
@@ -665,6 +698,7 @@ function App() {
               <button
                 onClick={() => {
                   setPage("Playlists");
+                  setMobileMenuOpen(false);
                   setToast(`${x} is ready to play.`);
                 }}
               >
@@ -695,7 +729,10 @@ function App() {
             <option value="th">ไทย</option>
           </select>
         </label>
-        <div className="profile">
+        <div
+          className="profile"
+          onClick={() => setMobileMenuOpen(false)}
+        >
           <div className="avatar">AM</div>
           <div>
             <strong>Alex Morgan</strong>
@@ -706,6 +743,14 @@ function App() {
       </aside>
       <main className="content">
         <header>
+          <button
+            className="mobile-menu-btn"
+            type="button"
+            aria-label="Toggle menu"
+            onClick={() => setMobileMenuOpen(true)}
+          >
+            <Menu size={20} />
+          </button>
           <div className="history">
             <button onClick={() => history.back()}>
               <ChevronLeft />
@@ -738,6 +783,10 @@ function App() {
       </main>
       {song && (
         <footer className="player">
+          <div
+            className="mobile-player-progress"
+            style={{ width: `${((time / (duration || 1)) * 100).toFixed(1)}%` }}
+          />
           <div className={art(song.art)}>
             <span>{song.title[0]}</span>
           </div>
@@ -759,7 +808,7 @@ function App() {
               >
                 <Shuffle size={16} />
               </button>
-              <button onClick={() => change(-1)}>
+              <button className="skip-btn skip-back" onClick={() => change(-1)}>
                 <SkipBack size={19} fill="currentColor" />
               </button>
               <button
@@ -772,7 +821,7 @@ function App() {
                   <Play size={18} fill="currentColor" />
                 )}
               </button>
-              <button onClick={() => change(1)}>
+              <button className="skip-btn skip-forward" onClick={() => change(1)}>
                 <SkipForward size={19} fill="currentColor" />
               </button>
               <button
@@ -813,6 +862,25 @@ function App() {
           </div>
         </footer>
       )}
+      <nav className="mobile-bottom-nav">
+        {[
+          [Home, "Home", t.home],
+          [Compass, "Discover", t.discover],
+          [Radio, "Radio", t.radio],
+          [Library, "Library", t.library],
+          [Heart, "Favorites", t.favorites],
+        ].map(([I, k, n]) => (
+          <button
+            key={k}
+            type="button"
+            className={page === k ? "mobile-nav-item active" : "mobile-nav-item"}
+            onClick={() => setPage(k)}
+          >
+            <I size={20} />
+            <span>{n}</span>
+          </button>
+        ))}
+      </nav>
       {modal && (
         <div className="modal-backdrop" onMouseDown={() => setModal(false)}>
           <form
