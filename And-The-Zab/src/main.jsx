@@ -302,6 +302,14 @@ function App() {
   }, [volume]);
   useEffect(() => {
     if (!player.current) return;
+    const currentSong = tracks[current];
+    if (currentSong?.youtubeId) {
+      if (playing) {
+        setYoutubeVideo(currentSong);
+        setPlaying(false);
+      }
+      return;
+    }
     playing
       ? player.current.play().catch(() => {
           setPlaying(false);
@@ -337,10 +345,12 @@ function App() {
         setCurrent(i);
         setTime(0);
         if (x.youtubeId) {
+          audioUrl = "";
           setYoutubeVideo(x);
           setPlaying(false);
         } else {
           audioUrl = x.audioUrl || "";
+          setYoutubeVideo(null);
           setPlaying(true);
         }
       }
@@ -515,21 +525,6 @@ function App() {
           </div>
         )}
       </section>
-      {youtubeVideo && (
-        <div className="youtube-playback">
-          <div>
-            <button onClick={() => setYoutubeVideo(null)}>
-              <X size={18} />
-            </button>
-            <iframe
-              title={youtubeVideo.title}
-              src={`https://www.youtube-nocookie.com/embed/${youtubeVideo.youtubeId}?autoplay=1&rel=0`}
-              allow="autoplay; encrypted-media; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
-        </div>
-      )}
     </>
   );
   const cards = (items = songs) => (
@@ -902,9 +897,19 @@ function App() {
               </button>
               <button
                 className="main-control"
-                onClick={() => setPlaying(!playing)}
+                onClick={() => {
+                  if (song?.youtubeId) {
+                    if (youtubeVideo) {
+                      setYoutubeVideo(null);
+                    } else {
+                      setYoutubeVideo(song);
+                    }
+                    return;
+                  }
+                  setPlaying(!playing);
+                }}
               >
-                {playing ? (
+                {youtubeVideo || playing ? (
                   <Pause size={18} fill="currentColor" />
                 ) : (
                   <Play size={18} fill="currentColor" />
@@ -1069,6 +1074,28 @@ function App() {
           </div>,
           document.body,
         )}
+      {youtubeVideo && (
+        <div
+          className="youtube-playback"
+          onClick={() => setYoutubeVideo(null)}
+        >
+          <div onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              aria-label="Close"
+              onClick={() => setYoutubeVideo(null)}
+            >
+              <X size={18} />
+            </button>
+            <iframe
+              title={youtubeVideo.title}
+              src={`https://www.youtube-nocookie.com/embed/${youtubeVideo.youtubeId}?autoplay=1&rel=0`}
+              allow="autoplay; encrypted-media; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
