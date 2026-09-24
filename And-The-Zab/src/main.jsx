@@ -679,6 +679,54 @@ function App() {
             <X size={20} />
           </button>
         </div>
+        {currentUser ? (
+          <div
+            className="sidebar-user-card"
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent("sonora-open-profile"));
+              setMobileMenuOpen(false);
+            }}
+          >
+            <div className="avatar">
+              {currentUser.avatarUrl ? (
+                <img src={currentUser.avatarUrl} alt="" />
+              ) : (
+                (currentUser.name || "U").slice(0, 2).toUpperCase()
+              )}
+            </div>
+            <div className="user-info">
+              <strong>{currentUser.name}</strong>
+              <small>{currentUser.email || t.premium}</small>
+            </div>
+            <button
+              className="sidebar-logout-btn"
+              type="button"
+              title={language === "th" ? "ออกจากระบบ" : "Sign out"}
+              onClick={(e) => {
+                e.stopPropagation();
+                localStorage.removeItem("sonora-user");
+                localStorage.removeItem("sonora-token");
+                setCurrentUser(null);
+                window.dispatchEvent(new Event("sonora-auth-changed"));
+                setToast(language === "th" ? "ออกจากระบบแล้ว" : "Signed out");
+              }}
+            >
+              <LogOut size={16} />
+            </button>
+          </div>
+        ) : (
+          <button
+            className="sidebar-login-top-btn"
+            type="button"
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent("sonora-open-account"));
+              setMobileMenuOpen(false);
+            }}
+          >
+            <LogIn size={18} />
+            <span>{language === "th" ? "เข้าสู่ระบบ" : "Log in"}</span>
+          </button>
+        )}
         <nav>
           {[
             [Home, "Home", t.home],
@@ -778,54 +826,6 @@ function App() {
             <option value="th">ไทย</option>
           </select>
         </label>
-        {currentUser ? (
-          <div
-            className="profile"
-            onClick={() => {
-              window.dispatchEvent(new CustomEvent("sonora-open-profile"));
-              setMobileMenuOpen(false);
-            }}
-          >
-            <div className="avatar">
-              {currentUser.avatarUrl ? (
-                <img src={currentUser.avatarUrl} alt="" />
-              ) : (
-                (currentUser.name || "U").slice(0, 2).toUpperCase()
-              )}
-            </div>
-            <div>
-              <strong>{currentUser.name}</strong>
-              <small>{currentUser.email || t.premium}</small>
-            </div>
-            <button
-              className="sidebar-logout-btn"
-              type="button"
-              title={language === "th" ? "ออกจากระบบ" : "Sign out"}
-              onClick={(e) => {
-                e.stopPropagation();
-                localStorage.removeItem("sonora-user");
-                localStorage.removeItem("sonora-token");
-                setCurrentUser(null);
-                window.dispatchEvent(new Event("sonora-auth-changed"));
-                setToast(language === "th" ? "ออกจากระบบแล้ว" : "Signed out");
-              }}
-            >
-              <LogOut size={16} />
-            </button>
-          </div>
-        ) : (
-          <button
-            className="sidebar-login-btn"
-            type="button"
-            onClick={() => {
-              window.dispatchEvent(new CustomEvent("sonora-open-account"));
-              setMobileMenuOpen(false);
-            }}
-          >
-            <LogIn size={17} />
-            <span>{language === "th" ? "เข้าสู่ระบบ" : "Log in"}</span>
-          </button>
-        )}
       </aside>
       <main className="content">
         <header>
