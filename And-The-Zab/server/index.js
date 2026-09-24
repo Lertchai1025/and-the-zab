@@ -9,8 +9,8 @@ const fs = require('fs')
 const { put } = require('@vercel/blob')
 const app = express()
 app.use(express.json())
-const uploadDir = path.join(__dirname, 'uploads')
-fs.mkdirSync(uploadDir, { recursive: true })
+const uploadDir = process.env.VERCEL ? '/tmp/uploads' : path.join(__dirname, 'uploads')
+try { fs.mkdirSync(uploadDir, { recursive: true }) } catch (_) {}
 // Multer exposes multipart filenames as Latin-1 strings. Browsers encode them as
 // UTF-8, so convert the underlying bytes before using a filename as visible text.
 const decodeUploadFilename = filename => {
