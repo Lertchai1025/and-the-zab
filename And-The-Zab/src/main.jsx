@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { createPortal, createRoot } from "react-dom/client";
+import { createPortal } from "react-dom";
+import { createRoot } from "react-dom/client";
 import {
   Search,
   Home,
@@ -30,6 +31,8 @@ import {
   Palette,
   LogIn,
   LogOut,
+  Trash2,
+  FolderPlus,
 } from "lucide-react";
 import "./styles.css";
 let audioUrl = "";
@@ -275,6 +278,12 @@ function App() {
       window.removeEventListener("sonora-open-library", openLibrary);
     };
   }, []);
+  useEffect(() => {
+    if (!menu) return;
+    const handleClose = () => setMenu(null);
+    window.addEventListener("click", handleClose);
+    return () => window.removeEventListener("click", handleClose);
+  }, [menu]);
   useEffect(
     () => localStorage.setItem("sonora-language", language),
     [language],
@@ -1003,19 +1012,46 @@ function App() {
             style={{ top: menu.top, left: menu.left }}
             onClick={(e) => e.stopPropagation()}
           >
-            <small>{t.moveTo}</small>
-            {lists.map((list) => (
+            <small>
+              {language === "th"
+                ? "ย้าย/เพิ่มลงเพลย์ลิสต์"
+                : "Move to playlist"}
+            </small>
+            {lists.length > 0 ? (
+              lists.map((list) => (
+                <button
+                  type="button"
+                  key={list}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    moveToList(menuSong, list);
+                  }}
+                >
+                  <ListMusic
+                    size={14}
+                    style={{ marginRight: 7, verticalAlign: "middle" }}
+                  />
+                  {list}
+                </button>
+              ))
+            ) : (
               <button
                 type="button"
-                key={list}
                 onClick={(e) => {
                   e.stopPropagation();
-                  moveToList(menuSong, list);
+                  setMenu(null);
+                  setModal(true);
                 }}
               >
-                {list}
+                <FolderPlus
+                  size={14}
+                  style={{ marginRight: 7, verticalAlign: "middle" }}
+                />
+                {language === "th"
+                  ? "+ สร้างเพลย์ลิสต์ใหม่"
+                  : "+ Create playlist"}
               </button>
-            ))}
+            )}
             <button
               type="button"
               className="delete-song"
@@ -1024,7 +1060,11 @@ function App() {
                 removeAlbum(menuSong);
               }}
             >
-              {t.removeAlbum}
+              <Trash2
+                size={14}
+                style={{ marginRight: 7, verticalAlign: "middle" }}
+              />
+              {language === "th" ? "ลบเพลง" : "Delete song"}
             </button>
           </div>,
           document.body,
