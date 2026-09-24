@@ -168,12 +168,25 @@ function App() {
     [language, setLanguage] = useState(
       () => localStorage.getItem("sonora-language") || "en",
     ),
-    [lists, setLists] = useState(() =>
-      JSON.parse(
-        localStorage.getItem("sonora-playlists") ||
-          '["Summer nights","Feel good songs","On repeat","Late night jazz"]',
-      ),
-    ),
+    [lists, setLists] = useState(() => {
+      try {
+        const stored = localStorage.getItem("sonora-playlists");
+        if (!stored) return [];
+        const parsed = JSON.parse(stored);
+        const defaults = ["Summer nights", "Feel good songs", "On repeat", "Late night jazz"];
+        if (
+          Array.isArray(parsed) &&
+          parsed.length === 4 &&
+          parsed.every((name, idx) => name === defaults[idx])
+        ) {
+          localStorage.setItem("sonora-playlists", "[]");
+          return [];
+        }
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }),
     [modal, setModal] = useState(false),
     [listName, setListName] = useState(""),
     [toast, setToast] = useState(""),
