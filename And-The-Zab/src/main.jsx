@@ -27,6 +27,9 @@ import {
   Check,
   Music2,
   Menu,
+  Palette,
+  LogIn,
+  LogOut,
 } from "lucide-react";
 import "./styles.css";
 let audioUrl = "";
@@ -196,6 +199,13 @@ function App() {
     [youtubeVideo, setYoutubeVideo] = useState(null),
     [themeModal, setThemeModal] = useState(false),
     [mobileMenuOpen, setMobileMenuOpen] = useState(false),
+    [currentUser, setCurrentUser] = useState(() => {
+      try {
+        return JSON.parse(localStorage.getItem("sonora-user") || "null");
+      } catch {
+        return null;
+      }
+    }),
     [theme, setTheme] = useState(
       () => localStorage.getItem("sonora-theme") || "classic",
     ),
@@ -204,6 +214,21 @@ function App() {
     );
   const player = useRef(null),
     t = words[language];
+  useEffect(() => {
+    const handleAuth = () => {
+      try {
+        setCurrentUser(JSON.parse(localStorage.getItem("sonora-user") || "null"));
+      } catch {
+        setCurrentUser(null);
+      }
+    };
+    window.addEventListener("sonora-auth-changed", handleAuth);
+    window.addEventListener("storage", handleAuth);
+    return () => {
+      window.removeEventListener("sonora-auth-changed", handleAuth);
+      window.removeEventListener("storage", handleAuth);
+    };
+  }, []);
   useEffect(() => {
     Promise.all([
       fetch("/api/tracks").then((r) => r.json()),
@@ -731,6 +756,17 @@ function App() {
             </div>
           ))}
         </div>
+        <button
+          className="sidebar-theme-btn"
+          type="button"
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent("sonora-open-theme"));
+            setMobileMenuOpen(false);
+          }}
+        >
+          <Palette size={17} />
+          <span>{language === "th" ? "ปรับแต่งธีม" : "Theme studio"}</span>
+        </button>
         <label className="language-select">
           <Languages size={17} />
           <span>{t.language}</span>
@@ -742,17 +778,54 @@ function App() {
             <option value="th">ไทย</option>
           </select>
         </label>
-        <div
-          className="profile"
-          onClick={() => setMobileMenuOpen(false)}
-        >
-          <div className="avatar">AM</div>
-          <div>
-            <strong>Alex Morgan</strong>
-            <small>{t.premium}</small>
+        {currentUser ? (
+          <div
+            className="profile"
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent("sonora-open-profile"));
+              setMobileMenuOpen(false);
+            }}
+          >
+            <div className="avatar">
+              {currentUser.avatarUrl ? (
+                <img src={currentUser.avatarUrl} alt="" />
+              ) : (
+                (currentUser.name || "U").slice(0, 2).toUpperCase()
+              )}
+            </div>
+            <div>
+              <strong>{currentUser.name}</strong>
+              <small>{currentUser.email || t.premium}</small>
+            </div>
+            <button
+              className="sidebar-logout-btn"
+              type="button"
+              title={language === "th" ? "ออกจากระบบ" : "Sign out"}
+              onClick={(e) => {
+                e.stopPropagation();
+                localStorage.removeItem("sonora-user");
+                localStorage.removeItem("sonora-token");
+                setCurrentUser(null);
+                window.dispatchEvent(new Event("sonora-auth-changed"));
+                setToast(language === "th" ? "ออกจากระบบแล้ว" : "Signed out");
+              }}
+            >
+              <LogOut size={16} />
+            </button>
           </div>
-          <MoreHorizontal size={18} />
-        </div>
+        ) : (
+          <button
+            className="sidebar-login-btn"
+            type="button"
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent("sonora-open-account"));
+              setMobileMenuOpen(false);
+            }}
+          >
+            <LogIn size={17} />
+            <span>{language === "th" ? "เข้าสู่ระบบ" : "Log in"}</span>
+          </button>
+        )}
       </aside>
       <main className="content">
         <header>
@@ -785,12 +858,6 @@ function App() {
               </button>
             )}
           </label>
-          <button
-            className="upgrade"
-            onClick={() => setToast("Premium upgrade is coming soon.")}
-          >
-            Upgrade
-          </button>
         </header>
         {main()}
       </main>
@@ -1159,25 +1226,23 @@ function Account() {
       localStorage.setItem("sonora-token", data.token);
       setUser(data.user);
       setOpen(false);
+      window.dispatchEvent(new Event("sonora-auth-changed"));
     } catch (err) {
       setError(err.message);
     } finally {
       setBusy(false);
     }
   };
-  if (user)
-    return (
-      <button
-        className="account-launcher signed-in"
-        onClick={() => {
-          localStorage.removeItem("sonora-user");
-          localStorage.removeItem("sonora-token");
-          setUser(null);
-        }}
-      >
-        <span>{user.name.slice(0, 1).toUpperCase()}</span>Sign out
-      </button>
-    );
+  useEffect(() => {
+    const onOpen = () => {
+      setMode("login");
+      setError("");
+      setNotice("");
+      setOpen(true);
+    };
+    window.addEventListener("sonora-open-account", onOpen);
+    return () => window.removeEventListener("sonora-open-account", onOpen);
+  }, []);
   const title = {
       login: "Welcome back",
       register: "Create your account",
@@ -1191,13 +1256,13 @@ function Account() {
       reset: "กรอกรหัสยืนยัน 6 หลักและรหัสผ่านใหม่",
     }[mode];
   return (
-    <>
-      <button className="account-launcher" onClick={() => setOpen(true)}>
-        Log in
-      </button>
-      {open && (
-        <div className="account-backdrop">
-          <form className="account-modal" onSubmit={submit}>
+    open && (
+      <div className="account-backdrop" onMouseDown={() => setOpen(false)}>
+        <form
+          className="account-modal"
+          onSubmit={submit}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
             <button
               className="modal-close"
               type="button"
@@ -1273,10 +1338,9 @@ function Account() {
             </button>
           </form>
         </div>
-      )}
-    </>
-  );
-}
+      )
+    );
+  }
 function MyAlbum() {
   const [open, setOpen] = useState(false),
     [items, setItems] = useState([]),
@@ -1574,17 +1638,21 @@ function ThemeStudio() {
       () => localStorage.getItem("sonora-motion") !== "off",
     );
   useEffect(() => {
-    const button = document.querySelector(".upgrade"),
-      launch = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setOpen(true);
-      };
+    const launch = (e) => {
+      e?.preventDefault?.();
+      e?.stopPropagation?.();
+      setOpen(true);
+    };
+    window.addEventListener("sonora-open-theme", launch);
+    const button = document.querySelector(".upgrade");
     if (button) {
       button.textContent = "Theme studio";
       button.addEventListener("click", launch, true);
     }
-    return () => button?.removeEventListener("click", launch, true);
+    return () => {
+      window.removeEventListener("sonora-open-theme", launch);
+      button?.removeEventListener("click", launch, true);
+    };
   }, []);
   useEffect(() => {
     const shell = document.querySelector(".app-shell");
