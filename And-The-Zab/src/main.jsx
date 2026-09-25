@@ -1591,7 +1591,11 @@ function UploadMusic() {
       setMessage("อัปโหลดเพลงสำเร็จ");
       setFile(null);
     } catch (error) {
-      setMessage(error.message || "อัปโหลดไม่สำเร็จ");
+      setMessage(
+        error.message?.includes("client token")
+          ? "Vercel Blob ยังไม่ได้เชื่อมต่อ กรุณาเพิ่ม BLOB_READ_WRITE_TOKEN ใน Vercel"
+          : error.message || "อัปโหลดไม่สำเร็จ",
+      );
     } finally {
       setBusy(false);
     }
