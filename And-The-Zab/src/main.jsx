@@ -34,7 +34,6 @@ import {
   Trash2,
   FolderPlus,
 } from "lucide-react";
-import { upload } from "@vercel/blob/client";
 import "./styles.css";
 let audioUrl = "";
 const art = (a) => `cover-art ${a}`;
@@ -1539,101 +1538,6 @@ function MyAlbum() {
     </>
   );
 }
-function UploadMusic() {
-  const [file, setFile] = useState(null),
-    [open, setOpen] = useState(false),
-    [message, setMessage] = useState(""),
-    [busy, setBusy] = useState(false);
-  useEffect(() => {
-    const show = () => setOpen(true);
-    window.addEventListener("sonora-upload", show);
-    return () => window.removeEventListener("sonora-upload", show);
-  }, []);
-  const submit = async (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem("sonora-token");
-    if (!token) return setMessage("กรุณา Log in ก่อนอัปโหลดเพลง");
-    if (!file) return setMessage("เลือกไฟล์เพลงก่อน");
-    if (file.size > 25 * 1024 * 1024)
-      return setMessage("ไฟล์ต้องมีขนาดไม่เกิน 25 MB");
-    setBusy(true);
-    const data = new FormData();
-    data.append("audio", file);
-    try {
-      const isLocal = ["localhost", "127.0.0.1"].includes(location.hostname);
-      const r = isLocal
-        ? await fetch("/api/album/upload", {
-            method: "POST",
-            headers: { Authorization: `Bearer ${token}` },
-            body: data,
-          })
-        : await (async () => {
-            const blob = await upload(`audio/${Date.now()}-${file.name}`, file, {
-              access: "public",
-              handleUploadUrl: "/api/blob/upload",
-              headers: { Authorization: `Bearer ${token}` },
-            });
-            return fetch("/api/album/upload-complete", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({
-                audioUrl: blob.url,
-                title: file.name.replace(/\.[^/.]+$/, ""),
-              }),
-            });
-          })(),
-        result = await readJson(r);
-      if (!r.ok) throw Error(result.error);
-      window.dispatchEvent(new Event("sonora-album-updated"));
-      setMessage("อัปโหลดเพลงสำเร็จ");
-      setFile(null);
-    } catch (error) {
-      setMessage(
-        error.message?.includes("client token")
-          ? "Vercel Blob ยังไม่ได้เชื่อมต่อ กรุณาเพิ่ม BLOB_READ_WRITE_TOKEN ใน Vercel"
-          : error.message || "อัปโหลดไม่สำเร็จ",
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
-  return (
-    <>
-      {open && (
-        <div className="album-backdrop" onMouseDown={() => setOpen(false)}>
-          <form
-            className="album-modal upload-modal"
-            onSubmit={submit}
-            onMouseDown={(e) => e.stopPropagation()}
-          >
-            <button
-              className="modal-close"
-              type="button"
-              onClick={() => setOpen(false)}
-            >
-              <X size={18} />
-            </button>
-            <h2>อัปโหลดเพลง</h2>
-            <p>เลือก MP3, WAV, OGG หรือ M4A (ไม่เกิน 25 MB)</p>
-            <input
-              type="file"
-              accept="audio/mpeg,audio/wav,audio/ogg,audio/mp4,.mp3,.wav,.ogg,.m4a"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-            />
-            {file && <small className="upload-file-name">{file.name}</small>}
-            {message && <small className="album-message">{message}</small>}
-            <button className="add-current" disabled={busy}>
-              {busy ? "กำลังอัปโหลด…" : "อัปโหลดเข้าอัลบั้ม"}
-            </button>
-          </form>
-        </div>
-      )}
-    </>
-  );
-}
 function YouTubeLink() {
   const [open, setOpen] = useState(false),
     [url, setUrl] = useState(""),
@@ -1713,15 +1617,6 @@ function MusicActions() {
   return (
     <div className="music-actions">
       <div className={open ? "music-action-menu open" : "music-action-menu"}>
-        <button
-          onClick={() => {
-            setOpen(false);
-            window.dispatchEvent(new Event("sonora-upload"));
-          }}
-        >
-          <Plus size={17} />
-          อัปโหลดเพลง
-        </button>
         <button onClick={() => run(".youtube-launcher")}>
           <Search size={17} />
           ค้นหา YouTube
@@ -2264,7 +2159,6 @@ createRoot(document.getElementById("root")).render(
     <App />
     <YouTubeSearch />
     <MyAlbum />
-    <UploadMusic />
     <MusicActions />
     <ThemeStudio />
     <LanguageLocalizer />
