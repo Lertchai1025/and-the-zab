@@ -83,9 +83,9 @@ body .youtube-launcher,body .album-launcher,body .upload-launcher{display:none!i
 }
 
 /* Home page visual polish */
-body{background:#f2f4f1;font-family:'Leelawadee UI','Tahoma','DM Sans',sans-serif}
-.hero h1,.page-intro h1,.library-title h1,.radio-page h1,.listening-room-head h1,.room-now-playing h2,.section-head h2{font-family:'Leelawadee UI','Tahoma','Playfair Display',serif;letter-spacing:0}
-.cover-letter{font-family:'Leelawadee UI','Tahoma','Playfair Display',serif}
+body{background:#f2f4f1;font-family:'DM Sans',sans-serif}
+.hero h1,.page-intro h1,.library-title h1,.radio-page h1,.listening-room-head h1,.room-now-playing h2,.section-head h2{font-family:'Playfair Display',serif;letter-spacing:-1.3px}
+.cover-letter{font-family:'Playfair Display'}
 .content{max-width:1180px;padding:28px 46px 48px}
 header{margin-bottom:26px}
 .hero{min-height:218px;border:1px solid rgba(39,83,76,.12);box-shadow:0 18px 38px rgba(41,75,67,.09);overflow:hidden}
