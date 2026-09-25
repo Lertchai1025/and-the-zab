@@ -1571,6 +1571,7 @@ function UploadMusic() {
             const blob = await upload(`audio/${Date.now()}-${file.name}`, file, {
               access: "public",
               handleUploadUrl: "/api/blob/upload",
+              headers: { Authorization: `Bearer ${token}` },
             });
             return fetch("/api/album/upload-complete", {
               method: "POST",
