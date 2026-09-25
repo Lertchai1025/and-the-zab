@@ -591,15 +591,42 @@ function App() {
       );
     if (page === "Radio")
       return (
-        <section className="radio-page">
-          <div className="radio-disc">♫</div>
-          <p>LIVE STATION</p>
-          <h1>{t.radioTitle}</h1>
-          <span>{t.radioText}</span>
-          <button className="hero-play" onClick={playAll}>
-            <Play size={18} fill="currentColor" />
-            Start radio
-          </button>
+        <section className="listening-room">
+          <div className="listening-room-head">
+            <div>
+              <p>YOUR LISTENING ROOM</p>
+              <h1>Set the room, let it play.</h1>
+              <span>เพลงที่คุณเลือกไว้ พร้อมฟังต่อเนื่องในที่เดียว</span>
+            </div>
+            <div className="room-disc">
+              {song?.thumbnail ? <img src={song.thumbnail} alt="" /> : "♫"}
+            </div>
+          </div>
+          <div className="room-now-playing">
+            <div>
+              <small>NOW PLAYING</small>
+              <h2>{song?.title || "ยังไม่มีเพลงในห้องฟัง"}</h2>
+              <p>{song?.artist || "เพิ่มเพลงจาก Discover เพื่อเริ่มฟัง"}</p>
+            </div>
+            <div className="room-controls">
+              <button onClick={() => change(-1)} aria-label="Previous song"><SkipBack size={18} /></button>
+              <button className="room-main-control" onClick={() => song && setPlaying(!playing)} aria-label={playing ? "Pause" : "Play"}>
+                {playing ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
+              </button>
+              <button onClick={() => change(1)} aria-label="Next song"><SkipForward size={18} /></button>
+            </div>
+          </div>
+          <div className="room-queue">
+            <div className="room-queue-title"><strong>Up next</strong><span>{shown.length} songs</span></div>
+            {shown.slice(0, 5).map((item) => (
+              <button className={item.id === song?.id ? "room-queue-item active" : "room-queue-item"} key={item.id} onClick={() => select(item)}>
+                <span className="room-queue-art">{item.thumbnail ? <img src={item.thumbnail} alt="" /> : item.title?.[0]}</span>
+                <span><strong>{item.title}</strong><small>{item.artist}</small></span>
+                <Play size={15} />
+              </button>
+            ))}
+            {!shown.length && <div className="room-empty">ยังไม่มีเพลงในคิว</div>}
+          </div>
         </section>
       );
     if (["Library", "Favorites", "Playlists"].includes(page))
