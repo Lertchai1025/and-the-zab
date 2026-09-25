@@ -1606,6 +1606,75 @@ function MyAlbum() {
     </>
   );
 }
+function UploadMusic() {
+  const [file, setFile] = useState(null),
+    [open, setOpen] = useState(false),
+    [message, setMessage] = useState(""),
+    [busy, setBusy] = useState(false);
+  useEffect(() => {
+    const show = () => setOpen(true);
+    window.addEventListener("sonora-upload", show);
+    return () => window.removeEventListener("sonora-upload", show);
+  }, []);
+  const submit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("sonora-token");
+    if (!token) return setMessage("กรุณา Log in ก่อนอัปโหลดเพลง");
+    if (!file) return setMessage("เลือกไฟล์เพลงก่อน");
+    setBusy(true);
+    const data = new FormData();
+    data.append("audio", file);
+    try {
+      const r = await fetch("/api/album/upload", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: data,
+        }),
+        result = await readJson(r);
+      if (!r.ok) throw Error(result.error);
+      window.dispatchEvent(new Event("sonora-album-updated"));
+      setMessage("อัปโหลดเพลงสำเร็จ");
+      setFile(null);
+    } catch (error) {
+      setMessage(error.message || "อัปโหลดไม่สำเร็จ");
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <>
+      {open && (
+        <div className="album-backdrop" onMouseDown={() => setOpen(false)}>
+          <form
+            className="album-modal upload-modal"
+            onSubmit={submit}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <button
+              className="modal-close"
+              type="button"
+              onClick={() => setOpen(false)}
+            >
+              <X size={18} />
+            </button>
+            <h2>อัปโหลดเพลง</h2>
+            <p>เลือก MP3, WAV, OGG หรือ M4A (ไม่เกิน 25 MB)</p>
+            <input
+              type="file"
+              accept="audio/mpeg,audio/wav,audio/ogg,audio/mp4,.mp3,.wav,.ogg,.m4a"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+            />
+            {file && <small className="upload-file-name">{file.name}</small>}
+            {message && <small className="album-message">{message}</small>}
+            <button className="add-current" disabled={busy}>
+              {busy ? "กำลังอัปโหลด…" : "อัปโหลดเข้าอัลบั้ม"}
+            </button>
+          </form>
+        </div>
+      )}
+    </>
+  );
+}
 function YouTubeLink() {
   const [open, setOpen] = useState(false),
     [url, setUrl] = useState(""),
