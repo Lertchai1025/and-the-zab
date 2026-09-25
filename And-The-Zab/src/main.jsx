@@ -99,6 +99,13 @@ const words = {
     addYoutube: "Add selected YouTube song",
     saved: "Song added to album",
     login: "Log in",
+    roomLabel: "YOUR LISTENING ROOM",
+    roomTitle: "Set the room, let it play.",
+    roomDescription: "Your selected music, ready to play continuously.",
+    nowPlaying: "NOW PLAYING",
+    upNext: "Up next",
+    songs: "songs",
+    emptyRoom: "No songs in the listening room yet",
   },
   th: {
     home: "หน้าหลัก",
@@ -142,6 +149,13 @@ const words = {
     addYoutube: "เพิ่มเพลง YouTube ที่เลือก",
     saved: "เพิ่มเพลงเข้าอัลบั้มแล้ว",
     login: "เข้าสู่ระบบ",
+    roomLabel: "ห้องฟังเพลงของคุณ",
+    roomTitle: "จัดห้องให้พร้อม แล้วปล่อยให้เพลงเล่น",
+    roomDescription: "เพลงที่คุณเลือกไว้ พร้อมฟังต่อเนื่องในที่เดียว",
+    nowPlaying: "กำลังเล่นอยู่",
+    upNext: "เพลงถัดไป",
+    songs: "เพลง",
+    emptyRoom: "ยังไม่มีเพลงในห้องฟัง",
   },
 };
 const tr = (key) =>
@@ -594,9 +608,9 @@ function App() {
         <section className="listening-room">
           <div className="listening-room-head">
             <div>
-              <p>YOUR LISTENING ROOM</p>
-              <h1>Set the room, let it play.</h1>
-              <span>เพลงที่คุณเลือกไว้ พร้อมฟังต่อเนื่องในที่เดียว</span>
+              <p>{t.roomLabel}</p>
+              <h1>{t.roomTitle}</h1>
+              <span>{t.roomDescription}</span>
             </div>
             <div className="room-disc">
               {song?.thumbnail ? <img src={song.thumbnail} alt="" /> : "♫"}
@@ -604,9 +618,9 @@ function App() {
           </div>
           <div className="room-now-playing">
             <div>
-              <small>NOW PLAYING</small>
-              <h2>{song?.title || "ยังไม่มีเพลงในห้องฟัง"}</h2>
-              <p>{song?.artist || "เพิ่มเพลงจาก Discover เพื่อเริ่มฟัง"}</p>
+              <small>{t.nowPlaying}</small>
+              <h2>{song?.title || t.emptyRoom}</h2>
+              <p>{song?.artist || (language === "th" ? "เพิ่มเพลงจากหน้าค้นหาเพื่อเริ่มฟัง" : "Add music from Discover to start listening")}</p>
             </div>
             <div className="room-controls">
               <button onClick={() => change(-1)} aria-label="Previous song"><SkipBack size={18} /></button>
@@ -617,7 +631,7 @@ function App() {
             </div>
           </div>
           <div className="room-queue">
-            <div className="room-queue-title"><strong>Up next</strong><span>{shown.length} songs</span></div>
+            <div className="room-queue-title"><strong>{t.upNext}</strong><span>{shown.length} {t.songs}</span></div>
             {shown.slice(0, 5).map((item) => (
               <button className={item.id === song?.id ? "room-queue-item active" : "room-queue-item"} key={item.id} onClick={() => select(item)}>
                 <span className="room-queue-art">{item.thumbnail ? <img src={item.thumbnail} alt="" /> : item.title?.[0]}</span>
@@ -625,7 +639,7 @@ function App() {
                 <Play size={15} />
               </button>
             ))}
-            {!shown.length && <div className="room-empty">ยังไม่มีเพลงในคิว</div>}
+            {!shown.length && <div className="room-empty">{t.emptyRoom}</div>}
           </div>
         </section>
       );
