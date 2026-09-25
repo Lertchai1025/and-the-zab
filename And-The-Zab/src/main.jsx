@@ -1553,6 +1553,8 @@ function UploadMusic() {
     const token = localStorage.getItem("sonora-token");
     if (!token) return setMessage("กรุณา Log in ก่อนอัปโหลดเพลง");
     if (!file) return setMessage("เลือกไฟล์เพลงก่อน");
+    if (file.size > 4 * 1024 * 1024)
+      return setMessage("ไฟล์ต้องมีขนาดไม่เกิน 4 MB บนเว็บไซต์ออนไลน์");
     setBusy(true);
     const data = new FormData();
     data.append("audio", file);
@@ -1590,7 +1592,7 @@ function UploadMusic() {
               <X size={18} />
             </button>
             <h2>อัปโหลดเพลง</h2>
-            <p>เลือก MP3, WAV, OGG หรือ M4A (ไม่เกิน 25 MB)</p>
+            <p>เลือก MP3, WAV, OGG หรือ M4A (ไม่เกิน 4 MB บนเว็บไซต์ออนไลน์)</p>
             <input
               type="file"
               accept="audio/mpeg,audio/wav,audio/ogg,audio/mp4,.mp3,.wav,.ogg,.m4a"
