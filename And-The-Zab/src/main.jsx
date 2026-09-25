@@ -532,7 +532,11 @@ function App() {
       {items.map((x) => (
         <article className="album-card" key={x.id} onClick={() => select(x)}>
           <div className={art(x.art)}>
-            <span className="cover-letter">{x.title[0]}</span>
+            {x.thumbnail ? (
+              <img src={x.thumbnail} alt="" />
+            ) : (
+              <span className="cover-letter">{x.title[0]}</span>
+            )}
             <button className="card-play">
               <Play size={17} fill="currentColor" />
             </button>
@@ -683,131 +687,87 @@ function App() {
             <X size={20} />
           </button>
         </div>
-        {currentUser ? (
-          <div
-            className="sidebar-user-card"
-            onClick={() => {
-              window.dispatchEvent(new CustomEvent("sonora-open-profile"));
-              setMobileMenuOpen(false);
-            }}
-          >
-            <div className="avatar">
-              {currentUser.avatarUrl ? (
-                <img src={currentUser.avatarUrl} alt="" />
-              ) : (
-                (currentUser.name || "U").slice(0, 2).toUpperCase()
-              )}
-            </div>
-            <div className="user-info">
-              <strong>{currentUser.name}</strong>
-              <small>{currentUser.email || t.premium}</small>
-            </div>
-            <button
-              className="sidebar-logout-btn"
-              type="button"
-              title={language === "th" ? "ออกจากระบบ" : "Sign out"}
-              onClick={(e) => {
-                e.stopPropagation();
-                localStorage.removeItem("sonora-user");
-                localStorage.removeItem("sonora-token");
-                setCurrentUser(null);
-                window.dispatchEvent(new Event("sonora-auth-changed"));
-                setToast(language === "th" ? "ออกจากระบบแล้ว" : "Signed out");
-              }}
-            >
-              <LogOut size={16} />
-            </button>
-          </div>
-        ) : (
-          <button
-            className="sidebar-login-top-btn"
-            type="button"
-            onClick={() => {
-              window.dispatchEvent(new CustomEvent("sonora-open-account"));
-              setMobileMenuOpen(false);
-            }}
-          >
-            <LogIn size={18} />
-            <span>{language === "th" ? "เข้าสู่ระบบ" : "Log in"}</span>
-          </button>
-        )}
-        <nav>
-          {[
-            [Home, "Home", t.home],
-            [Compass, "Discover", t.discover],
-            [Radio, "Radio", t.radio],
-            [Library, "Library", t.library],
-          ].map(([I, k, n]) => (
-            <button
-              className={page === k ? "nav-item active" : "nav-item"}
-              key={k}
-              onClick={() => {
-                setPage(k);
-                setMobileMenuOpen(false);
-              }}
-            >
-              <I size={19} />
-              {n}
-            </button>
-          ))}
-        </nav>
-        <div className="sidebar-label">{t.music}</div>
-        <button
-          className={page === "Favorites" ? "nav-item active" : "nav-item"}
-          onClick={() => {
-            setPage("Favorites");
-            setMobileMenuOpen(false);
-          }}
-        >
-          <Heart size={19} />
-          {t.favorites}
-        </button>
-        <button
-          className={page === "Playlists" ? "nav-item active" : "nav-item"}
-          onClick={() => {
-            setPage("Playlists");
-            setMobileMenuOpen(false);
-          }}
-        >
-          <ListMusic size={19} />
-          {t.playlists}
-        </button>
-        <button
-          className="create-playlist"
-          onClick={() => {
-            setModal(true);
-            setMobileMenuOpen(false);
-          }}
-        >
-          <Plus size={18} />
-          {t.create}
-        </button>
-        <div className="playlist-list">
-          {lists.map((x) => (
-            <div className="playlist-item" key={x}>
+
+        <div className="sidebar-main-nav">
+          <nav>
+            {[
+              [Home, "Home", t.home],
+              [Compass, "Discover", t.discover],
+              [Radio, "Radio", t.radio],
+              [Library, "Library", t.library],
+            ].map(([I, k, n]) => (
               <button
+                className={page === k ? "nav-item active" : "nav-item"}
+                key={k}
                 onClick={() => {
-                  setPage("Playlists");
+                  setPage(k);
                   setMobileMenuOpen(false);
-                  setToast(`${x} is ready to play.`);
                 }}
               >
-                {x}
+                <I size={19} />
+                {n}
               </button>
-              <button
-                className="playlist-delete"
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  deleteList(x);
-                }}
-                aria-label={`Delete ${x}`}
-              >
-                ×
-              </button>
-            </div>
-          ))}
+            ))}
+          </nav>
+          <div className="sidebar-label">{t.music}</div>
+          <button
+            className={page === "Favorites" ? "nav-item active" : "nav-item"}
+            onClick={() => {
+              setPage("Favorites");
+              setMobileMenuOpen(false);
+            }}
+          >
+            <Heart size={19} />
+            {t.favorites}
+          </button>
+          <button
+            className={page === "Playlists" ? "nav-item active" : "nav-item"}
+            onClick={() => {
+              setPage("Playlists");
+              setMobileMenuOpen(false);
+            }}
+          >
+            <ListMusic size={19} />
+            {t.playlists}
+          </button>
+          <button
+            className="create-playlist"
+            onClick={() => {
+              setModal(true);
+              setMobileMenuOpen(false);
+            }}
+          >
+            <Plus size={18} />
+            {t.create}
+          </button>
+          <div className="playlist-list">
+            {lists.map((x) => (
+              <div className="playlist-item" key={x}>
+                <button
+                  onClick={() => {
+                    setPage("Playlists");
+                    setMobileMenuOpen(false);
+                    setToast(`${x} is ready to play.`);
+                  }}
+                >
+                  {x}
+                </button>
+                <button
+                  className="playlist-delete"
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteList(x);
+                  }}
+                  aria-label={`Delete ${x}`}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
+
         <button
           className="sidebar-theme-btn"
           type="button"
@@ -830,6 +790,57 @@ function App() {
             <option value="th">ไทย</option>
           </select>
         </label>
+
+        <div className="sidebar-footer-actions">
+          {currentUser ? (
+            <div
+              className="sidebar-user-card"
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent("sonora-open-profile"));
+                setMobileMenuOpen(false);
+              }}
+            >
+              <div className="avatar">
+                {currentUser.avatarUrl ? (
+                  <img src={currentUser.avatarUrl} alt="" />
+                ) : (
+                  (currentUser.name || "U").slice(0, 2).toUpperCase()
+                )}
+              </div>
+              <div className="user-info">
+                <strong>{currentUser.name}</strong>
+                <small>{currentUser.email || t.premium}</small>
+              </div>
+              <button
+                className="sidebar-logout-btn"
+                type="button"
+                title={language === "th" ? "ออกจากระบบ" : "Sign out"}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  localStorage.removeItem("sonora-user");
+                  localStorage.removeItem("sonora-token");
+                  setCurrentUser(null);
+                  window.dispatchEvent(new Event("sonora-auth-changed"));
+                  setToast(language === "th" ? "ออกจากระบบแล้ว" : "Signed out");
+                }}
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
+          ) : (
+            <button
+              className="sidebar-login-top-btn"
+              type="button"
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent("sonora-open-account"));
+                setMobileMenuOpen(false);
+              }}
+            >
+              <LogIn size={18} />
+              <span>{language === "th" ? "เข้าสู่ระบบ" : "Log in"}</span>
+            </button>
+          )}
+        </div>
       </aside>
       <main className="content">
         <header>
@@ -1585,7 +1596,7 @@ function UploadMusic() {
               accept="audio/mpeg,audio/wav,audio/ogg,audio/mp4,.mp3,.wav,.ogg,.m4a"
               onChange={(e) => setFile(e.target.files?.[0] || null)}
             />
-            {file && <small>{file.name}</small>}
+            {file && <small className="upload-file-name">{file.name}</small>}
             {message && <small className="album-message">{message}</small>}
             <button className="add-current" disabled={busy}>
               {busy ? "กำลังอัปโหลด…" : "อัปโหลดเข้าอัลบั้ม"}

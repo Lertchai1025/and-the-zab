@@ -109,7 +109,13 @@ body .youtube-launcher,body .album-launcher,body .upload-launcher{display:none!i
 .theme-sunset .sidebar-login-btn{background:#9f3948!important;color:#fff!important}
 .theme-lilac .sidebar-theme-btn:hover{background:#3a2f5e;color:#fff}
 .theme-lilac .sidebar-login-btn{background:#65489e!important;color:#fff!important}
-.sidebar{bottom:88px!important;overflow-y:auto!important}
+.sidebar{bottom:88px!important;overflow-y:auto!important;padding:24px 15px 18px;gap:0}
+.sidebar-header-row{order:1;margin-bottom:18px;padding:0 3px}.sidebar-header-row .brand{margin:0}
+.sidebar-footer-actions{order:2;margin:0 0 20px;padding:0;border:0}
+.sidebar-main-nav{order:3;flex:none;overflow:visible}
+.sidebar-theme-btn{order:4;margin-top:auto;padding:10px 10px}
+.language-select{order:5;margin-top:7px;padding:13px 10px 10px;border-top:1px solid rgba(255,255,255,.12)}
+.sidebar-label{margin:25px 10px 8px}.playlist-list{gap:8px;margin:8px 10px 0}.playlist-item{min-height:27px}
 @media(max-width:850px){.sidebar{bottom:0!important}}
 .sidebar-footer-actions{margin-top:auto;padding-top:18px;border-top:1px solid rgba(255,255,255,.08)}
 .sidebar-login-top-btn{font:600 13px 'DM Sans',sans-serif;border:0;background:#e27f56;color:#fff;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;border-radius:20px;cursor:pointer;box-shadow:0 4px 14px rgba(226,127,86,.3);transition:all .2s ease}
