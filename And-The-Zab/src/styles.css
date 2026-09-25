@@ -148,6 +148,11 @@ header{margin-bottom:26px}
 .sidebar-theme-btn{order:4;margin-top:auto;padding:10px 10px}
 .language-select{order:5;margin-top:7px;padding:13px 10px 10px;border-top:1px solid rgba(255,255,255,.12)}
 .sidebar-label{margin:25px 10px 8px}.playlist-list{gap:8px;margin:8px 10px 0}.playlist-item{min-height:27px}
+.playlist-item{display:flex;align-items:center;gap:4px;min-width:0}
+.playlist-link{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-radius:7px!important;padding:7px 9px!important;color:#9da39f!important;transition:background .18s ease,color .18s ease}
+.playlist-link:hover,.playlist-link.active{background:#303634!important;color:#fff!important}
+.playlist-delete{width:26px;height:26px;display:grid;place-items:center;flex:0 0 26px;border:1px solid transparent;border-radius:7px;background:transparent;color:#7f8984;cursor:pointer;transition:background .18s ease,color .18s ease,border-color .18s ease}
+.playlist-delete:hover{background:#4a2d2a;color:#ff9b83;border-color:#74433b}
 @media(max-width:850px){.sidebar{bottom:0!important}}
 .sidebar-footer-actions{margin-top:auto;padding-top:18px;border-top:1px solid rgba(255,255,255,.08)}
 .sidebar-login-top-btn{font:600 13px 'DM Sans',sans-serif;border:0;background:#e27f56;color:#fff;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;border-radius:20px;cursor:pointer;box-shadow:0 4px 14px rgba(226,127,86,.3);transition:all .2s ease}

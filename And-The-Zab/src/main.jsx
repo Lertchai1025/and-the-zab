@@ -193,6 +193,7 @@ function App() {
         return [];
       }
     }),
+    [selectedPlaylist, setSelectedPlaylist] = useState(null),
     [modal, setModal] = useState(false),
     [listName, setListName] = useState(""),
     [toast, setToast] = useState(""),
@@ -332,10 +333,27 @@ function App() {
         ),
       [tracks, query],
     ),
+    playlistSongs = (() => {
+      if (page !== "Playlists" || !selectedPlaylist) return [];
+      try {
+        const saved = JSON.parse(
+          localStorage.getItem("sonora-playlist-tracks") || "{}",
+        );
+        return Array.isArray(saved[selectedPlaylist]) ? saved[selectedPlaylist] : [];
+      } catch {
+        return [];
+      }
+    })(),
     shown =
       page === "Favorites"
         ? songs.filter((x) => favorites.includes(x.id))
-        : songs,
+        : page === "Playlists" && selectedPlaylist
+          ? playlistSongs.filter((x) =>
+              `${x.title} ${x.artist} ${x.album}`
+                .toLowerCase()
+                .includes(query.toLowerCase()),
+            )
+          : songs,
     song = tracks[current] || tracks[0],
     fmt = (s) =>
       `${Math.floor((s || 0) / 60)}:${String(Math.floor((s || 0) % 60)).padStart(2, "0")}`,
@@ -596,7 +614,9 @@ function App() {
                     ? t.playlists
                     : t.library}
               </p>
-              <h1>{page === "Favorites" ? t.favorites : t.all}</h1>
+              <h1>
+                {page === "Favorites" ? t.favorites : selectedPlaylist || t.all}
+              </h1>
             </div>
             <button className="hero-play" onClick={playAll}>
               <Play size={18} fill="currentColor" />
@@ -723,6 +743,7 @@ function App() {
           <button
             className={page === "Playlists" ? "nav-item active" : "nav-item"}
             onClick={() => {
+              setSelectedPlaylist(null);
               setPage("Playlists");
               setMobileMenuOpen(false);
             }}
@@ -744,7 +765,13 @@ function App() {
             {lists.map((x) => (
               <div className="playlist-item" key={x}>
                 <button
+                  className={
+                    selectedPlaylist === x
+                      ? "playlist-link active"
+                      : "playlist-link"
+                  }
                   onClick={() => {
+                    setSelectedPlaylist(x);
                     setPage("Playlists");
                     setMobileMenuOpen(false);
                     setToast(`${x} is ready to play.`);
@@ -761,7 +788,7 @@ function App() {
                   }}
                   aria-label={`Delete ${x}`}
                 >
-                  ×
+                  <Trash2 size={14} />
                 </button>
               </div>
             ))}
