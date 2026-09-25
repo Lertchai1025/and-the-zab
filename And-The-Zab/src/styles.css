@@ -110,6 +110,10 @@ header{margin-bottom:26px}
 .music-action-main{box-shadow:0 10px 24px rgba(27,43,39,.2);transition:transform .2s ease,box-shadow .2s ease}
 .music-action-main:hover{transform:translateY(-2px);box-shadow:0 13px 28px rgba(27,43,39,.27)}
 @media(max-width:850px){.content{padding:14px 14px 40px!important}.hero-copy{padding:24px 20px}.hero h1{font-size:32px}.section-head h2{font-size:22px}.music-actions{right:16px;bottom:92px}}
+.sidebar-footer-actions{margin-top:0!important;padding-top:14px;border-top:1px solid rgba(255,255,255,.12)}
+.sidebar-header-row{margin-bottom:12px}
+.sidebar-main-nav .nav-item,.sidebar-main-nav .create-playlist{padding-top:8px;padding-bottom:8px}
+.sidebar-label{margin-top:20px}
 @media(max-width:500px){
   .upgrade{display:none!important}
   .hero-copy{padding:16px 14px!important}
