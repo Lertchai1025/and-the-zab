@@ -34,6 +34,7 @@ import {
   Trash2,
   FolderPlus,
 } from "lucide-react";
+import { upload } from "@vercel/blob/client";
 import "./styles.css";
 let audioUrl = "";
 const art = (a) => `cover-art ${a}`;
@@ -1553,17 +1554,36 @@ function UploadMusic() {
     const token = localStorage.getItem("sonora-token");
     if (!token) return setMessage("กรุณา Log in ก่อนอัปโหลดเพลง");
     if (!file) return setMessage("เลือกไฟล์เพลงก่อน");
-    if (file.size > 4 * 1024 * 1024)
-      return setMessage("ไฟล์ต้องมีขนาดไม่เกิน 4 MB บนเว็บไซต์ออนไลน์");
+    if (file.size > 25 * 1024 * 1024)
+      return setMessage("ไฟล์ต้องมีขนาดไม่เกิน 25 MB");
     setBusy(true);
     const data = new FormData();
     data.append("audio", file);
     try {
-      const r = await fetch("/api/album/upload", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: data,
-        }),
+      const isLocal = ["localhost", "127.0.0.1"].includes(location.hostname);
+      const r = isLocal
+        ? await fetch("/api/album/upload", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: data,
+          })
+        : await (async () => {
+            const blob = await upload(`audio/${Date.now()}-${file.name}`, file, {
+              access: "public",
+              handleUploadUrl: "/api/blob/upload",
+            });
+            return fetch("/api/album/upload-complete", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                audioUrl: blob.url,
+                title: file.name.replace(/\.[^/.]+$/, ""),
+              }),
+            });
+          })(),
         result = await readJson(r);
       if (!r.ok) throw Error(result.error);
       window.dispatchEvent(new Event("sonora-album-updated"));
@@ -1592,7 +1612,7 @@ function UploadMusic() {
               <X size={18} />
             </button>
             <h2>อัปโหลดเพลง</h2>
-            <p>เลือก MP3, WAV, OGG หรือ M4A (ไม่เกิน 4 MB บนเว็บไซต์ออนไลน์)</p>
+            <p>เลือก MP3, WAV, OGG หรือ M4A (ไม่เกิน 25 MB)</p>
             <input
               type="file"
               accept="audio/mpeg,audio/wav,audio/ogg,audio/mp4,.mp3,.wav,.ogg,.m4a"
