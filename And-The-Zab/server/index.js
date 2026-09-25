@@ -67,7 +67,6 @@ const publicUser = user => ({ id: user._id.toString(), name: user.name, email: u
 const newSession = async userId => {
   const token = crypto.randomUUID()
   if (useMemoryStore()) {
-    memoryStore.sessions = memoryStore.sessions.filter(session => String(session.userId) !== String(userId))
     memoryStore.sessions.push({ token, userId: String(userId) })
     return token
   }
